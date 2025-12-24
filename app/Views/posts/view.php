@@ -33,8 +33,8 @@
         <div class="">
             <?php if (session()->get('UserID') == $post['UserID']): ?>
                 <a href="<?= site_url('posts/edit/'.$post['PostID']) ?>" class="btn btn-outline-dark me-1">edit</a>
-                <a href="<?= site_url('posts/edit/'.$post['PostID']) ?>" class="btn btn-outline-dark">like</a>
             <?php endif; ?>
+            <a href="<?= site_url('posts/edit/'.$post['PostID']) ?>" class="btn btn-outline-dark">like</a>
         </div>
     </div>
 </div>
