@@ -36,7 +36,7 @@
                     <div class="card-body text-left"
                          onclick="location.href='<?= site_url('posts/view/'.$post['PostID']) ?>';"
                          style="margin-left:40px;margin-right:40px">
-                        <h3><?= esc($post['Title']) ?></h3>
+                        <h5><?= esc($post['Title']) ?></h5>
                         <p><?= character_limiter(esc($post['Content']), 150) ?></p>
                         <p>
                             <small>

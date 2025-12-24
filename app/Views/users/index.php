@@ -1,7 +1,7 @@
 <?= $this->extend('layout') ?>
 <?= $this->section('content') ?>
 
-<div class="container px-3">
+<div class="container px-3 pb-4">
     <div class="d-flex justify-content-between align-items-center mb-3 pt-3">
         <h2>All Users</h2>
         <a href="<?= site_url('users/create') ?>" class="btn btn-primary">Add User</a>
@@ -42,7 +42,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>All Posts</h2>
-        <a href="<?= site_url('users/create') ?>" class="btn btn-primary">Add User</a>
+        <a href="<?= site_url('posts/create') ?>" class="btn btn-primary">Add Post</a>
     </div>
 
     <table class="table table-striped table-bordered">
