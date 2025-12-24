@@ -15,7 +15,7 @@
                             <?= esc($post['Title']) ?>
                         </a>
                     </h5>
-                    <p><?= character_limiter(esc($post['Content']), 150) ?></p>
+                    <p><?= character_limiter(esc($post['Content']), 100) ?></p>
                     <p><small>by <?= esc($post['Username']) ?> 
                     <?php if (!empty(trim($post['Tags'] ?? ''))): ?>
                         — <?= implode(' ', array_map(
