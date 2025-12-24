@@ -28,7 +28,7 @@
         <input type="text" name="ProfilePicture" class="form-control" value="<?= esc($user['ProfilePicture']) ?>">
     </div>
     <button type="submit" class="btn btn-primary">Update</button>
-    <a href="<?= site_url('users') ?>" class="btn btn-secondary">Cancel</a>
+    <a href="<?= site_url('users/profile/'.session()->get('UserID')) ?>" class="btn btn-secondary">Cancel</a>
 </form>
 
 <?= $this->endSection() ?>

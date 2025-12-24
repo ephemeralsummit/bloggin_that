@@ -10,10 +10,15 @@ class UserController extends BaseController
     // GET /users
     public function index()
     {
-        $model = new UserModel();
-        $users = $model->findAll();
+        $userModel = new UserModel();
+        $postModel = new PostModel();
+        $users = $userModel->findAll();
+        $post = $postModel
+            ->select('Post.*, User.Username')
+            ->join('User', 'User.UserID = Post.UserID', 'left')
+            ->findAll();
         // Render the index view
-        return view('users/index', ['users' => $users]);
+        return view('users/index', ['users' => $users, 'posts' => $post]);
     }
 
     // GET /users/create
@@ -84,7 +89,7 @@ class UserController extends BaseController
 
         $model->update($id, $data);
 
-        return redirect()->to('/users')->with('message', 'User updated successfully!');
+        return redirect()->to(site_url('users/profile/' . session()->get('UserID')))->with('message', 'User updated successfully!');
     }
 
     // GET /users/delete/{id}
@@ -101,7 +106,7 @@ class UserController extends BaseController
     {
         $userModel = new UserModel();
         $postModel = new PostModel();
-
+        $userID = $this->request->getGet('user');
         $user = $userModel->find($id);
         if (!$user) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException("User not found");
@@ -111,7 +116,8 @@ class UserController extends BaseController
 
         return view('users/profile', [
             'user' => $user,
-            'posts' => $posts
+            'posts' => $posts,
+            'userID' => $userID
         ]);
     }
 }
