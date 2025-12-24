@@ -37,5 +37,6 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get('users/profile/(:num)', 'UserController::profile/$1');
     $routes->get('users/view/(:num)', 'UserController::view/$1');
     $routes->delete('users/(:num)', 'UserController::delete/$1');
+    $routes->delete('posts/(:num)', 'PostController::delete/$1');
 
 });

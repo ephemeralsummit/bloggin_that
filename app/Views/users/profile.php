@@ -3,7 +3,7 @@
 
 <div class="w-100 px-4 border-bottom border-secondary">
     <div class="d-flex mx-auto justify-content-center align-items-center pt-4">
-        <div class="me-5">
+        <div class="ms-3 me-3">
             <img src="<?= esc($user['ProfilePicture'] ?: 'https://via.placeholder.com/150') ?>"
                  class="img-fluid rounded mb-3"
                  style="width:150px;height:150px;object-fit:cover;">
@@ -19,11 +19,11 @@
     <div class="d-flex justify-content-center align-items-center pb-3 gap-2">
         <a href="<?= site_url('users/edit/' . $user['UserID']) ?>"
            class="btn btn-outline-dark"
-           style="width:20vh">Edit Profile</a>
+           style="width:17vh">Edit Profile</a>
 
         <a href="<?= site_url('logout') ?>"
            class="btn btn-outline-danger"
-           style="width:20vh">Logout</a>
+           style="width:17vh">Logout</a>
     </div>
     <?php endif; ?>
 </div>
@@ -31,12 +31,12 @@
 <div class="pt-3">
     <?php if (!empty($posts)): ?>
         <?php foreach ($posts as $post): ?>
-            <div class="my-4 pb-3 border-bottom border-secondary">
+            <div class="my-3 pb-3 border-bottom border-secondary">
                 <div class="border-left border-secondary">
                     <div class="card-body text-left"
                          onclick="location.href='<?= site_url('posts/view/'.$post['PostID']) ?>';"
                          style="margin-left:40px;margin-right:40px">
-                        <h3><?= esc($post['Title']) ?></h3>
+                        <h5><?= esc($post['Title']) ?></h5>
                         <p><?= character_limiter(esc($post['Content']), 150) ?></p>
                         <p>
                             <small>
@@ -54,7 +54,7 @@
             </div>
         <?php endforeach; ?>
     <?php else: ?>
-        <p>No posts found for this user.</p>
+        <p class="d-flex align-items-center justify-content-center">No posts found for this user.</p>
     <?php endif; ?>
 </div>
 

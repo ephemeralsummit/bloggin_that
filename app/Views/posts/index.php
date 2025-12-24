@@ -10,12 +10,12 @@
         <div class="my-4 pb-3 border-bottom border-secondary">
             <div class="border-left border-secondary">
                 <div class="card-body text-left" onclick="location.href='<?= site_url('posts/view/'.$post['PostID']) ?>';" style="margin-left:40px;margin-right:40px">
-                    <h3>
+                    <h5>
                         <a>
                             <?= esc($post['Title']) ?>
                         </a>
-                    </h3>
-                    <p><?= character_limiter(esc($post['Content']), 150) ?></p>
+                    </h5>
+                    <p><?= character_limiter(esc($post['Content']), 100) ?></p>
                     <p><small>by <?= esc($post['Username']) ?> 
                     <?php if (!empty(trim($post['Tags'] ?? ''))): ?>
                         — <?= implode(' ', array_map(

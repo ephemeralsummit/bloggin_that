@@ -8,7 +8,7 @@
     </a>
 </div>
 
-<div class="my-4 px-5 border-bottom border-secondary">
+<div class="py-4 px-5">
     <div class="card-body">
         <h2><?= esc($post['Title']) ?></h2>
         
@@ -16,11 +16,13 @@
             <?= esc($post['Content']) ?>
         </div>
 
-        <p><small class="text-muted"><?= implode(' ', array_map(fn($tag) => '#'.trim(esc($tag)), explode(',', $post['Tags']))) ?> — <?= esc($post['PublicationDate']) ?></small></p>
+        <p class="mb-0"><small class="text-muted"><?= implode(' ', array_map(fn($tag) => '#'.trim(esc($tag)), explode(',', $post['Tags']))) ?> — <?= esc($post['PublicationDate']) ?></small></p>
     </div>
-    <div class="d-flex row">
-        <div class="col-md-8">
-            <p>
+</div>
+<div class="pt-1 pb-3 px-5 border-bottom border-secondary">
+    <div class="d-flex justify-content-between">
+        <div class="">
+            <p class="mb-0 mt-2">
                 <small>
                     <a href="<?= site_url('users/profile/'.$post['UserID']) ?>" class="nav-link">
                         <?= esc($post['Username']) ?>
@@ -28,13 +30,11 @@
                 </small>
             </p>
         </div>
-        <div class="col-md-4">
+        <div class="">
             <?php if (session()->get('UserID') == $post['UserID']): ?>
-                <a href="<?= site_url('posts/edit/'.$post['PostID']) ?>" class="btn btn-warning mx-2">Edit</a>
-                <!-- <a href="<?= site_url('posts/delete/'.$post['PostID']) ?>" 
-                onclick="return confirm('Are you sure you want to delete this post?')"
-                class="btn btn-danger">Delete</a> -->
+                <a href="<?= site_url('posts/edit/'.$post['PostID']) ?>" class="btn btn-outline-dark me-1">edit</a>
             <?php endif; ?>
+            <a href="<?= site_url('posts/edit/'.$post['PostID']) ?>" class="btn btn-outline-dark">like</a>
         </div>
     </div>
 </div>

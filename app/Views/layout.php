@@ -22,6 +22,8 @@
             width: 150px;
             height: calc(100vh - 56px);
             z-index: 1000;
+            padding-top:10px;
+            padding-bottom:10px;
         }
         .sidebar .nav-link span, .sidebar .nav-link small {
             padding-left: 0;
@@ -78,6 +80,7 @@
                 align-items: center;
                 justify-content: space-around;
                 width: 100%;
+
             }
 
              .sidebar .nav-link i {
