@@ -1,4 +1,4 @@
-# Web App Blog – Midterms Project
+# Web App Blog
 
 A **simple blog web application** built using **CodeIgniter 4**.
 
@@ -19,7 +19,7 @@ https://github.com/ephemeralsummit/webAppBlog_midterms
 - Simple and clean UI using Bootstrap
 - MySQL database integration
 
-> ⚠️ This project is intended for **educational purposes only** and is not production-ready.
+> This project is intended for **educational purposes only** and is not production-ready.
 
 ---
 
