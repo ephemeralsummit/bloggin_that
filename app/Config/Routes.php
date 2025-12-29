@@ -24,6 +24,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->post('posts/update/(:num)', 'PostController::update/$1');
     $routes->get('posts/delete/(:num)', 'PostController::delete/$1');
     $routes->get('posts/view/(:num)', 'PostController::view/$1');
+    $routes->get('posts/liked', 'PostController::likedPosts');
     // like
     $routes->post('like/toggle/(:num)', 'LikeController::toggle/$1');
 
@@ -35,6 +36,8 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->post('users/update/(:num)', 'UserController::update/$1');
     $routes->get('users/delete/(:num)', 'UserController::delete/$1');
     $routes->get('users/profile/(:num)', 'UserController::profile/$1');
+    $routes->get('profile/liked', 'UserController::likedPosts');
+    $routes->get('profile/liked/(:num)', 'UserController::likedPosts/$1');
     $routes->get('users/view/(:num)', 'UserController::view/$1');
     $routes->delete('users/(:num)', 'UserController::delete/$1');
     $routes->delete('posts/(:num)', 'PostController::delete/$1');
