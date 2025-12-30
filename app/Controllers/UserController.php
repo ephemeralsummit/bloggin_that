@@ -156,7 +156,7 @@ class UserController extends BaseController
                 : false;
         }
 
-        return view('user/profile', [
+        return view('users/profile', [
             'user' => $user,
             'posts' => $posts
         ]);
