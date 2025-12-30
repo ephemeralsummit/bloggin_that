@@ -9,24 +9,25 @@ use App\Controllers\BaseController;
 
 class PostController extends BaseController
 {
-    // GET /posts
+    // =========================
+    // LIST POSTS + SEARCH + LIKE
+    // =========================
     public function index()
     {
         $postModel = new PostModel();
         $userModel = new UserModel();
         $likeModel = new LikeModel();
 
-        // 1. Ambil filter/search dari query parameters
         $search = $this->request->getGet('search');
         $userIDFilter = $this->request->getGet('user');
-        $currentUserID = session()->get('UserID'); // ID user yang sedang login
+        $currentUserID = session()->get('UserID');
 
-        // 2. Base query untuk mengambil posts
-        $builder = $postModel->select('Post.*, User.Username')
+        $builder = $postModel
+            ->select('Post.*, User.Username')
             ->join('User', 'User.UserID = Post.UserID', 'left');
 
         if (!empty($search)) {
-        $builder->groupStart()
+            $builder->groupStart()
                 ->like('Post.Title', $search)
                 ->orLike('Post.Content', $search)
                 ->groupEnd();
@@ -36,32 +37,26 @@ class PostController extends BaseController
             $builder->where('Post.UserID', $userIDFilter);
         }
 
-        $posts = $builder->orderBy('Post.PublicationDate', 'DESC')->findAll();
+        $posts = $builder
+            ->orderBy('Post.PublicationDate', 'DESC')
+            ->findAll();
 
-        // 3. Loop untuk menghitung total like dan cek status "is_liked"
-        // menggunakan & agar perubahan pada $post langsung tersimpan di array $posts
         foreach ($posts as &$post) {
-            // Hitung total like untuk post ini
-            $post['total_likes'] = $likeModel->where('post_id', $post['PostID'])->countAllResults();
+            $post['total_likes'] = $likeModel
+                ->where('PostID', $post['PostID'])
+                ->countAllResults();
 
-            // Cek apakah user yang login sudah pernah like post ini
             $post['is_liked'] = false;
             if ($currentUserID) {
-                $check = $likeModel->where([
-                    'post_id' => $post['PostID'],
-                    'user_id' => $currentUserID
-                ])->first();
-
-                if ($check) {
-                    $post['is_liked'] = true;
-                }
+                $post['is_liked'] = $likeModel->where([
+                    'PostID' => $post['PostID'],
+                    'UserID' => $currentUserID
+                ])->first() ? true : false;
             }
         }
 
-        // Ambil data users untuk dropdown filter
         $users = $userModel->select('UserID, Username')->findAll();
 
-        // Kirim data ke view (Satu return saja di akhir)
         return view('posts/index', [
             'posts' => $posts,
             'search' => $search,
@@ -159,7 +154,9 @@ class PostController extends BaseController
         return redirect()->to('/posts')->with('message', 'Post deleted successfully!');
     }
 
-    // GET /posts/view/{id}
+    // =========================
+    // SINGLE POST VIEW
+    // =========================
     public function view($id)
     {
         $postModel = new PostModel();
@@ -176,42 +173,48 @@ class PostController extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException("Post not found");
         }
 
-        // Tambahkan juga data like untuk halaman single view
-        $post['total_likes'] = $likeModel->where('post_id', $id)->countAllResults();
+        $post['total_likes'] = $likeModel
+            ->where('PostID', $id)
+            ->countAllResults();
+
         $post['is_liked'] = false;
         if ($currentUserID) {
-            $post['is_liked'] = $likeModel->where(['post_id' => $id, 'user_id' => $currentUserID])->first() ? true : false;
+            $post['is_liked'] = $likeModel->where([
+                'PostID' => $id,
+                'UserID' => $currentUserID
+            ])->first() ? true : false;
         }
 
-        return view('posts/view', [
-            'post' => $post
-        ]);
+        return view('posts/view', ['post' => $post]);
     }
 
-    // view khusus untuk post yang di cek like
+
+    // =========================
+    // POSTS YANG DI-LIKE USER
+    // =========================
     public function likedPosts()
     {
+        $currentUserID = session()->get('UserID');
+        if (!$currentUserID) {
+            return redirect()->to('/login');
+        }
+
         $postModel = new PostModel();
         $likeModel = new LikeModel();
 
-        $currentUserID = session()->get('UserID');
-
-        if (!$currentUserID) {
-            return redirect()->to('/login')->with('error', 'Silakan login terlebih dahulu.');
-        }
-
-        // Query: Ambil Post yang UserID-nya ada di tabel likes
-        $posts = $postModel->select('Post.*, User.Username')
+        $posts = $postModel
+            ->select('Post.*, User.Username')
+            ->join('likes', 'likes.PostID = Post.PostID')
             ->join('User', 'User.UserID = Post.UserID', 'left')
-            ->join('likes', 'likes.post_id = Post.PostID') // Join ke tabel likes
-            ->where('likes.user_id', $currentUserID)        // Filter hanya like milik user login
+            ->where('likes.UserID', $currentUserID)
             ->orderBy('Post.PublicationDate', 'DESC')
             ->findAll();
 
-        // penambahan info total likes agar tampilan konsisten
         foreach ($posts as &$post) {
-            $post['total_likes'] = $likeModel->where('post_id', $post['PostID'])->countAllResults();
-            $post['is_liked'] = true; //pasti true
+            $post['total_likes'] = $likeModel
+                ->where('PostID', $post['PostID'])
+                ->countAllResults();
+            $post['is_liked'] = true;
         }
 
         return view('posts/liked', [
