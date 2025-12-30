@@ -41,7 +41,7 @@ class UserController extends BaseController
         helper('form');
         $model = new UserModel();
 
-        $data = [
+        $model->insert([
             'Username' => $this->request->getPost('Username'),
             'Email' => $this->request->getPost('Email'),
             'Password' => password_hash(
@@ -50,9 +50,7 @@ class UserController extends BaseController
             ),
             'Bio' => $this->request->getPost('Bio'),
             'ProfilePicture' => $this->request->getPost('ProfilePicture'),
-        ];
-
-        $model->insert($data);
+        ]);
 
         return redirect()->to('/users')
             ->with('message', 'User created successfully!');
@@ -121,7 +119,7 @@ class UserController extends BaseController
     }
 
     // ======================
-    // PROFILE USER (FINAL)
+    // PROFILE USER
     // ======================
     public function profile($id = null)
     {
@@ -145,13 +143,13 @@ class UserController extends BaseController
 
         foreach ($posts as &$post) {
             $post['total_likes'] = $likeModel
-                ->where('post_id', $post['PostID'])
+                ->where('PostID', $post['PostID'])
                 ->countAllResults();
 
             $post['is_liked'] = session()->get('UserID')
                 ? (bool) $likeModel->where([
-                    'post_id' => $post['PostID'],
-                    'user_id' => session()->get('UserID')
+                    'PostID' => $post['PostID'],
+                    'UserID' => session()->get('UserID')
                 ])->first()
                 : false;
         }
@@ -177,19 +175,19 @@ class UserController extends BaseController
 
         $posts = $postModel
             ->select('Post.*, User.Username')
-            ->join('likes', 'likes.post_id = Post.PostID')
+            ->join('likes', 'likes.PostID = Post.PostID')
             ->join('User', 'User.UserID = Post.UserID')
-            ->where('likes.user_id', $targetID)
+            ->where('likes.UserID', $targetID)
             ->findAll();
 
         foreach ($posts as &$p) {
             $p['total_likes'] = $likeModel
-                ->where('post_id', $p['PostID'])
+                ->where('PostID', $p['PostID'])
                 ->countAllResults();
             $p['is_liked'] = true;
         }
 
-        return view('user/liked_posts', [
+        return view('users/liked_posts', [
             'posts' => $posts,
             'title' => 'Post yang Disukai'
         ]);
