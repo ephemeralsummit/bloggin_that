@@ -1,6 +1,13 @@
 <?= $this->extend('layout') ?>
 <?= $this->section('content') ?>
 
+<div class="py-3 px-5 border-bottom border-secondary">
+    <a href="<?= site_url('posts') ?>" class="ml-2 nav-link"> 
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        <span class="pl-2 h5">back</span>
+    </a>
+</div>
+
 <div class="w-100 px-4 pt-5">
     <h2>Add New User</h2>
     <form action="<?= site_url('users') ?>" method="post">

@@ -80,20 +80,33 @@ class PostController extends BaseController
         $postModel = new PostModel();
         helper(['form']);
 
+        // Handle image upload
+        $imageFile = $this->request->getFile('image');
+        $imageName = null;
+
+        if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+            $imageName = $imageFile->getRandomName();
+            $imageFile->move(ROOTPATH . 'public/uploads', $imageName);
+        }
+
         $data = [
-            'Title' => $this->request->getPost('Title'),
-            'image' =>$this->request->getPost('image'),
-            'Content' => $this->request->getPost('Content'),
-            'Category' => $this->request->getPost('Category'),
+            'Title'           => $this->request->getPost('Title'),
+            'Image'           => $imageName, // ✅ filename, not file object
+            'Content'         => $this->request->getPost('Content'),
+            'Category'        => $this->request->getPost('Category'),
             'PublicationDate' => date('Y-m-d H:i:s'),
-            'Tags' => $this->request->getPost('Tags'),
-            'UserID' => session()->get('UserID'),
+            'Tags'            => $this->request->getPost('Tags'),
+            'UserID'          => session()->get('UserID'),
         ];
 
         $postModel->insert($data);
 
-        return redirect()->to('/posts')->with('message', 'Post created successfully!');
+        return redirect()
+            ->to('/posts')
+            ->with('message', 'Post created successfully!');
     }
+
+
 
     // GET /posts/edit/{id}
     public function edit($id)
@@ -123,18 +136,43 @@ class PostController extends BaseController
         $postModel = new PostModel();
         helper('form');
 
+        // Get existing post (to keep old image if no new one)
+        $post = $postModel->find($id);
+
+        if (!$post) {
+            return redirect()->to('/posts')->with('error', 'Post not found');
+        }
+
+        // Handle image upload
+        $imageFile = $this->request->getFile('image');
+        $imageName = $post['Image']; // keep old image by default
+
+        if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+            // Optional: delete old image file
+            if (!empty($imageName) && file_exists(ROOTPATH . 'public/uploads/' . $imageName)) {
+                unlink(ROOTPATH . 'public/uploads/' . $imageName);
+            }
+
+            $imageName = $imageFile->getRandomName();
+            $imageFile->move(ROOTPATH . 'public/uploads', $imageName);
+        }
+
         $data = [
-            'Title' => $this->request->getPost('Title'),
-            'image' => $this->request->getPost('image'),
-            'Content' => $this->request->getPost('Content'),
+            'Title'    => $this->request->getPost('Title'),
+            'Image'    => $imageName, // ✅ CORRECT (not getPost)
+            'Content'  => $this->request->getPost('Content'),
             'Category' => $this->request->getPost('Category'),
-            'Tags' => $this->request->getPost('Tags'),
-            'UserID' => session()->get('UserID'),
+            'Tags'     => $this->request->getPost('Tags'),
+            'UserID'   => session()->get('UserID'),
         ];
 
         $postModel->update($id, $data);
-        return redirect()->to('/posts')->with('message', 'Post updated successfully!');
+
+        return redirect()
+            ->to('/posts')
+            ->with('message', 'Post updated successfully!');
     }
+
 
     // GET /posts/delete/{id}
     public function delete($id)

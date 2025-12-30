@@ -12,9 +12,21 @@
     <div class="card-body">
         <h2><?= esc($post['Title']) ?></h2>
         
-        <div class="mt-1 mb-1">
+        <div class="mt-1 mb-3">
             <?= esc($post['Content']) ?>
         </div>
+
+        <?php if (!empty($post['Image'])): ?>
+            <div class="mb-3">
+                <img
+                    src="<?= base_url('uploads/' . $post['Image']) ?>"
+                    alt="<?= esc($post['Title']) ?>"
+                    class="img-fluid rounded shadow-sm"
+                    style="max-width: 100%; height: auto;"
+                >
+            </div>
+        <?php endif; ?>
+
 
         <p class="mb-0"><small class="text-muted"><?= implode(' ', array_map(fn($tag) => '#'.trim(esc($tag)), explode(',', $post['Tags']))) ?> — <?= esc($post['PublicationDate']) ?></small></p>
     </div>
