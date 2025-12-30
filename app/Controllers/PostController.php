@@ -87,6 +87,7 @@ class PostController extends BaseController
 
         $data = [
             'Title' => $this->request->getPost('Title'),
+            'image' =>$this->request->getPost('image'),
             'Content' => $this->request->getPost('Content'),
             'Category' => $this->request->getPost('Category'),
             'PublicationDate' => date('Y-m-d H:i:s'),
@@ -129,6 +130,7 @@ class PostController extends BaseController
 
         $data = [
             'Title' => $this->request->getPost('Title'),
+            'image' => $this->request->getPost('image'),
             'Content' => $this->request->getPost('Content'),
             'Category' => $this->request->getPost('Category'),
             'Tags' => $this->request->getPost('Tags'),
@@ -206,7 +208,7 @@ class PostController extends BaseController
             ->orderBy('Post.PublicationDate', 'DESC')
             ->findAll();
 
-        // Tambah info total likes agar tampilan konsisten
+        // penambahan info total likes agar tampilan konsisten
         foreach ($posts as &$post) {
             $post['total_likes'] = $likeModel->where('post_id', $post['PostID'])->countAllResults();
             $post['is_liked'] = true; //pasti true

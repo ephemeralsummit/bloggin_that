@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Dec 29, 2025 at 01:12 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost:3307
+-- Generation Time: Dec 30, 2025 at 12:14 PM
+-- Server version: 8.4.3
+-- PHP Version: 8.3.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,10 +28,10 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `likes` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `user_id` int(10) UNSIGNED NOT NULL,
-  `articles_id` int(10) UNSIGNED NOT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+  `id` int UNSIGNED NOT NULL,
+  `user_id` int UNSIGNED NOT NULL,
+  `articles_id` int UNSIGNED NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -41,26 +41,27 @@ CREATE TABLE `likes` (
 --
 
 CREATE TABLE `post` (
-  `PostID` int(11) NOT NULL,
-  `Title` varchar(255) DEFAULT NULL,
-  `Content` text DEFAULT NULL,
-  `Category` varchar(100) DEFAULT NULL,
-  `PublicationDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `Tags` varchar(255) DEFAULT NULL,
-  `UserID` int(11) DEFAULT NULL
+  `PostID` int NOT NULL,
+  `Title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Image` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `Category` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `PublicationDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `Tags` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `UserID` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `post`
 --
 
-INSERT INTO `post` (`PostID`, `Title`, `Content`, `Category`, `PublicationDate`, `Tags`, `UserID`) VALUES
-(3, 'sgdfnsgfdnf', 'sgnsgfnfg', 'snbfdgn', '2025-10-27 14:32:04', 'gfsdgfdr', 2),
-(7, 'fdsvndfjklngjdfn', 'ngjdsnginsdiugn', '', '2025-10-30 04:14:50', '', 2),
-(10, 'The concept of the world', 'Went my own way, then I made it. It\'s quite perplexing to prove all the thoughts you were clouded off to be wrong. Feels nice to be finally alive.', 'thoughts', '2025-11-09 10:22:40', 'living, diva, yass', 2),
-(11, 'hyena noises', 'a bunch of hyena noises', 'nature', '2025-11-09 10:23:30', 'sotrue, nature, animals', 3),
-(13, 'testing 1', 'testing 1', '', '2025-12-24 10:05:59', 'testingg', 6),
-(15, 'bumping THAT', 'exactly brat of the year babyyyyyyyyy', '', '2025-12-24 10:44:10', '365, partygirl', 4);
+INSERT INTO `post` (`PostID`, `Title`, `Image`, `Content`, `Category`, `PublicationDate`, `Tags`, `UserID`) VALUES
+(3, 'sgdfnsgfdnf', NULL, 'sgnsgfnfg', 'snbfdgn', '2025-10-27 14:32:04', 'gfsdgfdr', 2),
+(7, 'fdsvndfjklngjdfn', NULL, 'ngjdsnginsdiugn', '', '2025-10-30 04:14:50', '', 2),
+(10, 'The concept of the world', NULL, 'Went my own way, then I made it. It\'s quite perplexing to prove all the thoughts you were clouded off to be wrong. Feels nice to be finally alive.', 'thoughts', '2025-11-09 10:22:40', 'living, diva, yass', 2),
+(11, 'hyena noises', NULL, 'a bunch of hyena noises', 'nature', '2025-11-09 10:23:30', 'sotrue, nature, animals', 3),
+(13, 'testing 1', NULL, 'testing 1', '', '2025-12-24 10:05:59', 'testingg', 6),
+(15, 'bumping THAT', NULL, 'exactly brat of the year babyyyyyyyyy', '', '2025-12-24 10:44:10', '365, partygirl', 4);
 
 -- --------------------------------------------------------
 
@@ -69,12 +70,12 @@ INSERT INTO `post` (`PostID`, `Title`, `Content`, `Category`, `PublicationDate`,
 --
 
 CREATE TABLE `user` (
-  `UserID` int(11) NOT NULL,
-  `Username` varchar(50) DEFAULT NULL,
-  `Email` varchar(255) DEFAULT NULL,
-  `Password` varchar(255) DEFAULT NULL,
-  `Bio` text DEFAULT NULL,
-  `ProfilePicture` varchar(255) DEFAULT NULL
+  `UserID` int NOT NULL,
+  `Username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `Bio` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `ProfilePicture` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -121,19 +122,19 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `likes`
 --
 ALTER TABLE `likes`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `post`
 --
 ALTER TABLE `post`
-  MODIFY `PostID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `PostID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `UserID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `UserID` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
