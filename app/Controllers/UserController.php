@@ -92,7 +92,6 @@ class UserController extends BaseController
         $currentUsername = session()->get('Username');
         $isAdmin = ($currentUsername === 'admin');
 
-        // Only allow edit if it's their own profile OR they are the admin
         if ($user['UserID'] != $currentUserID && !$isAdmin) {
             return redirect()->to('/users')
                 ->with('error', 'You do not have permission to edit this user.');

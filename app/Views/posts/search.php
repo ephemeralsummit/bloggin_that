@@ -50,7 +50,6 @@ document.getElementById('searchForm').addEventListener('submit', function(e) {
 
     resultsDiv.innerHTML = '<div class="text-center text-muted">searching...</div>';
 
-    // This calls the route we just added
     fetch(`<?= site_url('posts/search/fetch') ?>?${params}`)
         .then(response => {
             if (!response.ok) throw new Error('Route not found');

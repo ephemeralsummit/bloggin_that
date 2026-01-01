@@ -19,7 +19,6 @@ class SearchController extends BaseController
     {
         $postModel = new \App\Models\PostModel();
         
-        // Use $this->request->getGet() to ensure we are grabbing the right keys
         $search = $this->request->getGet('search');
         $tags = $this->request->getGet('tags');
 
@@ -36,9 +35,7 @@ class SearchController extends BaseController
         }
 
         // Filter 2: Tags
-        // We use another groupStart if you want to be strict
         if (!empty(trim($tags))) {
-            // This ensures the query includes: AND (Post.Tags LIKE %tag%)
             $builder->like('Post.Tags', trim($tags));
         }
 
@@ -64,7 +61,6 @@ class SearchController extends BaseController
             ->select('Post.*, User.Username, User.ProfilePicture')
             ->join('User', 'User.UserID = Post.UserID', 'left');
 
-        // Apply filters only if data is provided
         if (!empty($search)) {
             $builder->groupStart()
                 ->like('Post.Title', $search)
@@ -78,7 +74,7 @@ class SearchController extends BaseController
 
         $posts = $builder->orderBy('Post.PublicationDate', 'DESC')->findAll();
 
-        // 3. Handle Like data (Optional: See optimization tip in previous reply)
+        // 3. Handle Like data
         foreach ($posts as &$post) {
             $post['total_likes'] = $likeModel->where('PostID', $post['PostID'])->countAllResults();
             $post['is_liked'] = false;

@@ -49,5 +49,5 @@
         </div>
     <?php endforeach; ?>
 <?php else: ?>
-    <p class="text-center">No posts found matching your search.</p>
+    <p class="text-center">no posts found matching your search.</p>
 <?php endif; ?>

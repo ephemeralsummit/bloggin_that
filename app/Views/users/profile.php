@@ -62,7 +62,6 @@
             role="tablist"
             style="height:6vh;"
         >
-            <!-- POSTS -->
             <li class="nav-item w-50 h-100">
                 <button
                     class="nav-link w-100 h-100 rounded-0 fw-semibold text-dark border-0 tab-btn active"
@@ -77,7 +76,6 @@
                 </button>
             </li>
 
-            <!-- LIKED -->
             <li class="nav-item w-50 h-100">
                 <button
                     class="nav-link w-100 h-100 rounded-0 fw-semibold text-dark border-0 tab-btn"
@@ -220,7 +218,7 @@
         <?php endif; ?>
 
         </div>
-    </div> <!-- end tab-content -->
+    </div>
 </div>
 
 <?= $this->endSection() ?>

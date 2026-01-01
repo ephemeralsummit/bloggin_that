@@ -19,26 +19,25 @@
             background-color: #f8f9fa;
         }
 
-        /* --- Profile Tabs Underline Fix --- */
+        
         #profileTabs .tab-btn {
             position: relative;
             background: transparent !important;
             border: none !important;
         }
 
-        /* Create the underline for the active tab */
+        
         #profileTabs .tab-btn.active::after {
             content: "";
             position: absolute;
             bottom: 0;
-            left: 20%;  /* Centers the line slightly */
+            left: 20%;  
             right: 20%;
             height: 4px;
-            background-color: #212529; /* Matches sidebar indicator */
+            background-color: #212529; 
             border-radius: 2px 2px 0 0;
         }
 
-        /* Ensure the vertical divider in the middle stays visible */
         #profileTabs::before {
             content: "";
             position: absolute;
@@ -50,7 +49,6 @@
             z-index: 1;
         }
 
-        /* Prevent Bootstrap's blue shadow/outline on click */
         #profileTabs .tab-btn:focus {
             box-shadow: none !important;
         }
@@ -62,14 +60,14 @@
                 left: calc(58% - (var(--content-width) / 2) - var(--sidebar-width));
                 width: 160px;
                 height: calc(100vh - 56px);
-                padding-top: 15px; /* Slightly reduced top padding */
+                padding-top: 15px; 
             }
             .sidebar .nav {
                 flex-direction: column !important;
-                gap: 2px; /* Decreased gap between buttons */
+                gap: 2px; 
             }
             .sidebar .nav-link {
-                padding: 8px 20px; /* Reduced vertical padding from 12px to 8px */
+                padding: 8px 20px; 
                 font-size: 1.4rem;
                 justify-content: flex-start;
             }

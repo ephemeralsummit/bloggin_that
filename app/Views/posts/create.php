@@ -35,7 +35,6 @@
 
         <!-- ACTION ROW -->
         <div class="mb-2 row g-1 align-items-center">
-            <!-- Tags -->
             <div class="col-12 col-md-7 order-1">
                 <input type="text"
                        name="Tags"
@@ -43,7 +42,6 @@
                        placeholder="tags...">
             </div>
 
-            <!-- Publish (full width on mobile) -->
             <div class="col-12 col-md-2 order-3 order-md-4">
                 <button type="submit"
                         class="btn btn-outline-success w-100">
@@ -51,7 +49,6 @@
                 </button>
             </div>
 
-            <!-- Add image -->
             <div class="col-12 col-md-3 order-2 order-md-2">
                 <input type="file"
                     id="imageInput"
@@ -68,7 +65,6 @@
         </div>
     </form>
 
-    <!-- IMAGE PREVIEW -->
     <div class="mt-4">
         <h5 id="imagePreviewTitle"
             class="<?= empty($post['Image']) ? 'd-none' : '' ?>">

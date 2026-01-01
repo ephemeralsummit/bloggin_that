@@ -48,7 +48,7 @@
             </div>
         <?php endforeach; ?>
     <?php else: ?>
-        <p class="text-muted">No one liked this post yet.</p>
+        <p class="text-muted">no one liked this post yet.</p>
     <?php endif; ?>
 </div>
 
