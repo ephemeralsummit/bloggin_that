@@ -1,4 +1,4 @@
-# Web App Blog
+# bloggin' that
 
 A **simple blog web application** built using **CodeIgniter 4**.
 
@@ -11,15 +11,12 @@ https://github.com/ephemeralsummit/webAppBlog_midterms
 
 ## Features
 
-- View blog posts
-- Create new posts
-- Edit existing posts
-- Delete posts
+- View, create, edit, delete posts
+- Likes and photos implementation
 - Basic CRUD (Create, Read, Update, Delete) functionality
-- Simple and clean UI using Bootstrap
+- Simple and clean UI using Bootstrap, while also optimized for mobile
 - MySQL database integration
 
-> This project is intended for **educational purposes only** and is not production-ready.
 
 ---
 
