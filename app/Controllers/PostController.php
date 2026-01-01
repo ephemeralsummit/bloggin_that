@@ -23,7 +23,7 @@ class PostController extends BaseController
         $currentUserID = session()->get('UserID');
 
         $builder = $postModel
-            ->select('Post.*, User.Username')
+            ->select('Post.*, User.Username, User.ProfilePicture')
             ->join('User', 'User.UserID = Post.UserID', 'left');
 
         if (!empty($search)) {
@@ -248,12 +248,21 @@ class PostController extends BaseController
         $likeModel = new LikeModel();
 
         $posts = $postModel
-            ->select('Post.*, User.Username')
-            ->join('likes', 'likes.PostID = Post.PostID')
-            ->join('User', 'User.UserID = Post.UserID', 'left')
+            ->select([
+                        'posts.PostID',
+                        'posts.Title',
+                        'posts.Content',
+                        'posts.Image AS Image', // overwrite intentionally
+                        'posts.Tags',
+                        'posts.PublicationDate',
+                        'users.Username'
+                    ])  
+            ->join('likes', 'likes.PostID = posts.PostID')
+            ->join('users', 'users.UserID = posts.UserID', 'left')
             ->where('likes.UserID', $currentUserID)
-            ->orderBy('Post.PublicationDate', 'DESC')
+            ->orderBy('posts.PublicationDate', 'DESC')
             ->findAll();
+
 
         foreach ($posts as &$post) {
             $post['total_likes'] = $likeModel

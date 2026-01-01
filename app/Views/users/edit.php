@@ -86,7 +86,7 @@
     </form>
 
     <!-- IMAGE PREVIEW -->
-    <div class="mt-4">
+    <div class="mt-4 pb-5">
         <h5 id="imagePreviewTitle"
             class="<?= empty($user['ProfilePicture']) ? 'd-none' : '' ?>">
             profile picture preview

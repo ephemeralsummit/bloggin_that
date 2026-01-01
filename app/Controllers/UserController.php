@@ -202,6 +202,7 @@ class UserController extends BaseController
                 Post.Content,
                 Post.Tags,
                 Post.PublicationDate,
+                Post.Image,
                 User.Username,
                 User.ProfilePicture
             ')
