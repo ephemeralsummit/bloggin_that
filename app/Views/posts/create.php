@@ -47,7 +47,7 @@
             <div class="col-12 col-md-2 order-3 order-md-4">
                 <button type="submit"
                         class="btn btn-outline-success w-100">
-                    publish
+                    post
                 </button>
             </div>
 

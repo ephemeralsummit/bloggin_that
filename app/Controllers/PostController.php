@@ -118,7 +118,9 @@ class PostController extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Post not found');
         }
 
-        if ($post['UserID'] != session()->get('UserID')) {
+        // --- ADMIN OVERRIDE ---
+        $isAdmin = (session()->get('Username') === 'admin');
+        if ($post['UserID'] != session()->get('UserID') && !$isAdmin) {
             return redirect()->to('/posts')->with('error', 'You are not allowed to edit this post.');
         }
 
@@ -136,34 +138,37 @@ class PostController extends BaseController
         $postModel = new PostModel();
         helper('form');
 
-        // Get existing post (to keep old image if no new one)
         $post = $postModel->find($id);
 
         if (!$post) {
             return redirect()->to('/posts')->with('error', 'Post not found');
         }
 
-        // Handle image upload
+        // --- ADMIN OVERRIDE ---
+        $isAdmin = (session()->get('Username') === 'admin');
+        if ($post['UserID'] != session()->get('UserID') && !$isAdmin) {
+            return redirect()->to('/posts')->with('error', 'Unauthorized update.');
+        }
+
         $imageFile = $this->request->getFile('image');
-        $imageName = $post['Image']; // keep old image by default
+        $imageName = $post['Image'];
 
         if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
-            // Optional: delete old image file
             if (!empty($imageName) && file_exists(ROOTPATH . 'public/uploads/' . $imageName)) {
                 unlink(ROOTPATH . 'public/uploads/' . $imageName);
             }
-
             $imageName = $imageFile->getRandomName();
             $imageFile->move(ROOTPATH . 'public/uploads', $imageName);
         }
 
         $data = [
             'Title'    => $this->request->getPost('Title'),
-            'Image'    => $imageName, // ✅ CORRECT (not getPost)
+            'Image'    => $imageName,
             'Content'  => $this->request->getPost('Content'),
             'Category' => $this->request->getPost('Category'),
             'Tags'     => $this->request->getPost('Tags'),
-            'UserID'   => session()->get('UserID'),
+            // We keep the original UserID so the admin doesn't "steal" the post
+            'UserID'   => $post['UserID'], 
         ];
 
         $postModel->update($id, $data);
@@ -172,7 +177,6 @@ class PostController extends BaseController
             ->to('/posts')
             ->with('message', 'Post updated successfully!');
     }
-
 
     // GET /posts/delete/{id}
     public function delete($id)
@@ -184,8 +188,15 @@ class PostController extends BaseController
             return redirect()->to('/posts')->with('error', 'Post not found.');
         }
 
-        if ($post['UserID'] != session()->get('UserID')) {
+        // --- ADMIN OVERRIDE ---
+        $isAdmin = (session()->get('Username') === 'admin');
+        if ($post['UserID'] != session()->get('UserID') && !$isAdmin) {
             return redirect()->to('/posts')->with('error', 'You are not allowed to delete this post.');
+        }
+
+        // Optional: Delete the image file from server when post is deleted
+        if (!empty($post['Image']) && file_exists(ROOTPATH . 'public/uploads/' . $post['Image'])) {
+            unlink(ROOTPATH . 'public/uploads/' . $post['Image']);
         }
 
         $postModel->delete($id);
@@ -273,7 +284,7 @@ class PostController extends BaseController
 
         return view('posts/liked', [
             'posts' => $posts,
-            'title' => 'Postingan yang Saya Sukai'
+            'title' => 'liked posts'
         ]);
     }
 }
