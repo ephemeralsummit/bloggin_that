@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($title ?? 'User Management') ?></title>
+    <title><?= esc($title ?? 'bloggin` that') ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -172,7 +172,7 @@
     ?>
     <nav class="navbar navbar-expand-lg sticky-top bg-light border-bottom border-secondary">
         <div class="container justify-content-center pt-1">
-            <h4>Blog</h4>
+            <h4>bloggin` that</h4>
             <!-- <div>
                 <a href="<?= site_url('users') ?>" class="btn btn-outline-dark text-dark btn-sm">Users</a>
                 <a href="<?= site_url('posts') ?>" class="btn btn-outline-dark text-dark btn-sm">Posts</a>
@@ -197,7 +197,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="#" class="nav-link py-2 rounded-0 text-black">
+                    <a href="<?= site_url('posts/search') ?>" class="nav-link py-2 rounded-0 text-black">
                         <i class="fa fa-search" aria-hidden="true"></i>
                         <span>search</span>
                     </a>
@@ -213,12 +213,6 @@
                 <?php if (session()->has('UserID')): ?>
 
                 <li class="nav-item mt-auto">
-                    <a href="<?= site_url('users') ?>" class="nav-link py-2 rounded-0 text-black">
-                        <i class="fa fa-signing"></i>
-                        <span>admin</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a href="<?= site_url('users/profile/'.session()->get('UserID')) ?>" class="nav-link py-2 rounded-0 text-black">
                         <i class="fa fa-user"></i>
                         <span>profile</span>

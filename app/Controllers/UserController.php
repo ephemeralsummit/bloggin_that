@@ -22,9 +22,13 @@ class UserController extends BaseController
             ->join('User', 'User.UserID = Post.UserID', 'left')
             ->findAll();
 
+        $currentUser = session()->get();
+        $isAdmin = isset($currentUser['Username']) && $currentUser['Username'] === 'admin';
+
         return view('users/index', [
             'users' => $users,
-            'posts' => $posts
+            'posts' => $posts,
+            'isAdmin' => $isAdmin
         ]);
     }
 

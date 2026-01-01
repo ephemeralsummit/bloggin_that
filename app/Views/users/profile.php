@@ -9,7 +9,7 @@
 </div>
 
 <div class="w-100 px-4 border-bottom border-secondary">
-    <div class="d-flex mx-auto justify-content-center align-items-center pt-4">
+    <div class="d-flex justify-content-center align-items-center pt-4 gap-3">
         <?php
         $pic = $user['ProfilePicture'] ?? null;
 
@@ -24,14 +24,15 @@
         <div class="ms-3 me-3">
             <img src="<?= esc($profileImg) ?>"
                 class="img-fluid rounded mb-3"
-                style="width:150px;height:150px;object-fit:cover;">
+                style="min-width:150px;height:150px;object-fit:cover;">
         </div>
         <div class="text-start mb-3 me-5">
             <h3><?= esc($user['Username']) ?></h3>
             <p class="text-muted"><?= esc($user['Email']) ?></p>
-            <p><?= esc($user['Bio']) ?></p>
+            
         </div>
     </div>
+    <p class="px-5 text-center"><?= esc($user['Bio']) ?></p>
 
     <?php if (session()->has('UserID') && session()->get('UserID') == $user['UserID']): ?>
     <div class="d-flex justify-content-center align-items-center pb-3 gap-2">
@@ -42,6 +43,12 @@
         <a href="<?= site_url('logout') ?>"
            class="btn btn-outline-danger"
            style="width:17vh">logout</a>
+
+        <?php if (session()->get('Username') === 'admin'): ?>
+        <a href="<?= site_url('users') ?>"
+            class="btn btn-outline-dark"
+            style="width:17vh">admin panel</a>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 </div>
@@ -91,7 +98,7 @@
 
     <!-- TAB CONTENT -->
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="posts" role="tabpanel">
+        <div class="tab-pane fade show active pb-5" id="posts" role="tabpanel">
         <?php if (!empty($posts)): ?>
             <?php foreach ($posts as $post): ?>
                 <div class="my-3 pb-3 pt-3 border-bottom border-secondary" style="cursor:pointer;">
@@ -153,7 +160,7 @@
         <?php endif; ?>
         </div>
 
-        <div class="tab-pane fade" id="likes" role="tabpanel">
+        <div class="tab-pane fade pb-5" id="likes" role="tabpanel">
         <?php if (!empty($likedPosts)): ?>
             <?php foreach ($likedPosts as $post): ?>
                 <div class="my-3 pb-3 pt-3 border-bottom border-secondary" style="cursor:pointer;">
