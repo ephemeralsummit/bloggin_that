@@ -77,7 +77,7 @@
         </div>
     </form>
 
-    <div class="mt-4">
+    <div class="mt-4 pb-5 text-center">
         <h5 id="imagePreviewTitle"
             class="<?= empty($post['Image']) ? 'd-none' : '' ?>">
             image preview
