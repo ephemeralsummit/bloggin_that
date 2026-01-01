@@ -4,39 +4,67 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
-use CodeIgniter\HTTP\ResponseInterface;
-
 use App\Models\LikeModel;
+
 class LikeController extends BaseController
 {
     use ResponseTrait;
+
     public function toggle($postId)
     {
         $likeModel = new LikeModel();
 
-        //jika belum like login dulu
-        $userId = session()->get('user_id');
-        if (!$userId){
+        // Ambil user login 
+        $userId = session()->get('UserID');
+        if (!$userId) {
             return $this->failUnauthorized('You must be logged in to like a post.');
         }
-        //cek like
-        $existingLike = $likeModel->where(['user_id' => $userId, 'post_id' => $postId])->first();
+
+        // Cek apakah sudah like
+        $existingLike = $likeModel->where([
+            'UserID' => $userId,
+            'PostID' => $postId
+        ])->first();
 
         if ($existingLike) {
+            // Unlike
             $likeModel->delete($existingLike['id']);
             $status = 'unliked';
         } else {
-            $likeModel->insert(['user_id' => $userId, 'post_id' => $postId]);
+            // Like
+            $likeModel->insert([
+                'UserID' => $userId,
+                'PostID' => $postId
+            ]);
             $status = 'liked';
         }
-        //total like
-        $totalLikes = $likeModel->where('post_id', $postId)->countAllResults();
+
+        // Hitung total like
+        $totalLikes = $likeModel
+            ->where('PostID', $postId)
+            ->countAllResults();
 
         return $this->respond([
-            'status'      => 'success',
-            'action'      => $status,
+            'status' => 'success',
+            'action' => $status,
             'total_likes' => $totalLikes
         ]);
     }
-}
+    
+    public function list($postId)
+    {
+        $likeModel = new LikeModel();
 
+        $likes = $likeModel
+            ->select('User.UserID, User.Username, User.ProfilePicture, User.Bio')
+            ->join('User', 'User.UserID = likes.UserID')
+            ->where('PostID', $postId)
+            ->findAll();
+
+        return view('likes/list', [
+            'likes'  => $likes,
+            'postId' => $postId
+        ]);
+    }
+
+}

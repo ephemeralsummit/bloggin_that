@@ -10,6 +10,7 @@ class PostModel extends Model
 
     protected $allowedFields = [
         'Title',
+        'Image',
         'Content',
         'Category',
         'PublicationDate',

@@ -4,74 +4,66 @@ namespace App\Controllers;
 
 use App\Models\PostModel;
 use App\Models\UserModel;
-use App\Controllers\BaseController;
 use App\Models\LikeModel;
+use App\Controllers\BaseController;
 
 class PostController extends BaseController
 {
-    // GET /posts
+    // =========================
+    // LIST POSTS + SEARCH + LIKE
+    // =========================
     public function index()
     {
         $postModel = new PostModel();
         $userModel = new UserModel();
         $likeModel = new LikeModel();
 
-        // Get filter/search from query parameters
         $search = $this->request->getGet('search');
-        $userID = $this->request->getGet('user');
+        $userIDFilter = $this->request->getGet('user');
+        $currentUserID = session()->get('UserID');
 
-        $post = $postModel->findAll();
+        $builder = $postModel
+            ->select('Post.*, User.Username')
+            ->join('User', 'User.UserID = Post.UserID', 'left');
 
-        // Base query
-        $builder = $postModel->select('Post.*, User.Username')
-                            ->join('User', 'User.UserID = Post.UserID', 'left');
-
-        // Search by title
         if (!empty($search)) {
-            $builder->like('Post.Title', $search);
+            $builder->groupStart()
+                ->like('Post.Title', $search)
+                ->orLike('Post.Content', $search)
+                ->groupEnd();
         }
 
-        // Filter by user
-        if (!empty($userID)) {
-            $builder->where('Post.UserID', $userID);
+        if (!empty($userIDFilter)) {
+            $builder->where('Post.UserID', $userIDFilter);
         }
 
-        $posts = $builder->orderBy('Post.PublicationDate', 'DESC')->findAll();
+        $posts = $builder
+            ->orderBy('Post.PublicationDate', 'DESC')
+            ->findAll();
 
-        // Fetch all users for the dropdown filter
+        foreach ($posts as &$post) {
+            $post['total_likes'] = $likeModel
+                ->where('PostID', $post['PostID'])
+                ->countAllResults();
+
+            $post['is_liked'] = false;
+            if ($currentUserID) {
+                $post['is_liked'] = $likeModel->where([
+                    'PostID' => $post['PostID'],
+                    'UserID' => $currentUserID
+                ])->first() ? true : false;
+            }
+        }
+
         $users = $userModel->select('UserID, Username')->findAll();
 
         return view('posts/index', [
             'posts' => $posts,
             'search' => $search,
-            'userID' => $userID,
+            'userID' => $userIDFilter,
             'users' => $users
-        ]); 
-
-        // Menghitung total like
-        foreach ($posts as $post) {
-            $post['likes'] = $likeModel->where('post_id', $post['PostID'])->countAllResults();
-        }
-        $p['is_liked'] = false; // default
-        if ($userId) {
-            $check = $likeModel->where([
-                'post_id' => $p['id'], 
-                'user_id' => $userId
-            ])->first();
-            
-            if ($check) {
-                $p['is_liked'] = true;
-            }
-        }
-
-    // Kirim data ke view
-    return view('post_index', [
-        'posts' => $posts
-    ]);
-}
-    
-
-
+        ]);
+    }
 
     // GET /posts/create
     public function create()
@@ -86,24 +78,34 @@ class PostController extends BaseController
     public function store()
     {
         $postModel = new PostModel();
-        $userModel = new UserModel();
         helper(['form']);
 
+        // Handle image upload
+        $imageFile = $this->request->getFile('image');
+        $imageName = null;
 
-        // Validation passed: insert post
+        if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+            $imageName = $imageFile->getRandomName();
+            $imageFile->move(ROOTPATH . 'public/uploads', $imageName);
+        }
+
         $data = [
             'Title'           => $this->request->getPost('Title'),
+            'Image'           => $imageName, // ✅ filename, not file object
             'Content'         => $this->request->getPost('Content'),
             'Category'        => $this->request->getPost('Category'),
             'PublicationDate' => date('Y-m-d H:i:s'),
             'Tags'            => $this->request->getPost('Tags'),
-            'UserID' => session()->get('UserID'),
+            'UserID'          => session()->get('UserID'),
         ];
 
         $postModel->insert($data);
 
-        return redirect()->to('/posts')->with('message', 'Post created successfully!');
+        return redirect()
+            ->to('/posts')
+            ->with('message', 'Post created successfully!');
     }
+
 
 
     // GET /posts/edit/{id}
@@ -116,7 +118,6 @@ class PostController extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Post not found');
         }
 
-        // Ensure only the author can edit
         if ($post['UserID'] != session()->get('UserID')) {
             return redirect()->to('/posts')->with('error', 'You are not allowed to edit this post.');
         }
@@ -133,21 +134,45 @@ class PostController extends BaseController
     public function update($id)
     {
         $postModel = new PostModel();
-        
         helper('form');
 
+        // Get existing post (to keep old image if no new one)
+        $post = $postModel->find($id);
+
+        if (!$post) {
+            return redirect()->to('/posts')->with('error', 'Post not found');
+        }
+
+        // Handle image upload
+        $imageFile = $this->request->getFile('image');
+        $imageName = $post['Image']; // keep old image by default
+
+        if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+            // Optional: delete old image file
+            if (!empty($imageName) && file_exists(ROOTPATH . 'public/uploads/' . $imageName)) {
+                unlink(ROOTPATH . 'public/uploads/' . $imageName);
+            }
+
+            $imageName = $imageFile->getRandomName();
+            $imageFile->move(ROOTPATH . 'public/uploads', $imageName);
+        }
 
         $data = [
-            'Title' => $this->request->getPost('Title'),
-            'Content' => $this->request->getPost('Content'),
+            'Title'    => $this->request->getPost('Title'),
+            'Image'    => $imageName, // ✅ CORRECT (not getPost)
+            'Content'  => $this->request->getPost('Content'),
             'Category' => $this->request->getPost('Category'),
-            'Tags' => $this->request->getPost('Tags'),
-            'UserID' => session()->get('UserID'),
+            'Tags'     => $this->request->getPost('Tags'),
+            'UserID'   => session()->get('UserID'),
         ];
 
         $postModel->update($id, $data);
-        return redirect()->to('/posts')->with('message', 'Post updated successfully!');
+
+        return redirect()
+            ->to('/posts')
+            ->with('message', 'Post updated successfully!');
     }
+
 
     // GET /posts/delete/{id}
     public function delete($id)
@@ -159,7 +184,6 @@ class PostController extends BaseController
             return redirect()->to('/posts')->with('error', 'Post not found.');
         }
 
-        // Only author can delete
         if ($post['UserID'] != session()->get('UserID')) {
             return redirect()->to('/posts')->with('error', 'You are not allowed to delete this post.');
         }
@@ -168,20 +192,39 @@ class PostController extends BaseController
         return redirect()->to('/posts')->with('message', 'Post deleted successfully!');
     }
 
-    // GET /posts/view/{id}
+    // =========================
+    // SINGLE POST VIEW
+    // =========================
     public function view($id)
     {
         $postModel = new PostModel();
-        $userModel = new UserModel();
+        $likeModel = new LikeModel();
 
+        $currentUserID = session()->get('UserID');
+
+        // Get post + author
         $post = $postModel
-            ->select('Post.*, User.Username')
+            ->select('Post.*, User.Username, User.ProfilePicture')
             ->join('User', 'User.UserID = Post.UserID', 'left')
             ->where('Post.PostID', $id)
             ->first();
 
         if (!$post) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Post not found");
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Post not found');
+        }
+
+        // Total likes
+        $post['total_likes'] = $likeModel
+            ->where('PostID', $id)
+            ->countAllResults();
+
+        // Is liked by current user
+        $post['is_liked'] = false;
+        if ($currentUserID) {
+            $post['is_liked'] = (bool) $likeModel->where([
+                'PostID' => $id,
+                'UserID' => $currentUserID
+            ])->first();
         }
 
         return view('posts/view', [
@@ -189,4 +232,39 @@ class PostController extends BaseController
         ]);
     }
 
+
+
+    // =========================
+    // POSTS YANG DI-LIKE USER
+    // =========================
+    public function likedPosts()
+    {
+        $currentUserID = session()->get('UserID');
+        if (!$currentUserID) {
+            return redirect()->to('/login');
+        }
+
+        $postModel = new PostModel();
+        $likeModel = new LikeModel();
+
+        $posts = $postModel
+            ->select('Post.*, User.Username')
+            ->join('likes', 'likes.PostID = Post.PostID')
+            ->join('User', 'User.UserID = Post.UserID', 'left')
+            ->where('likes.UserID', $currentUserID)
+            ->orderBy('Post.PublicationDate', 'DESC')
+            ->findAll();
+
+        foreach ($posts as &$post) {
+            $post['total_likes'] = $likeModel
+                ->where('PostID', $post['PostID'])
+                ->countAllResults();
+            $post['is_liked'] = true;
+        }
+
+        return view('posts/liked', [
+            'posts' => $posts,
+            'title' => 'Postingan yang Saya Sukai'
+        ]);
+    }
 }

@@ -4,50 +4,76 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Models\PostModel;
+use App\Models\LikeModel;
 
 class UserController extends BaseController
 {
-    // GET /users
+    // ======================
+    // LIST USER + POST
+    // ======================
     public function index()
     {
         $userModel = new UserModel();
         $postModel = new PostModel();
+
         $users = $userModel->findAll();
-        $post = $postModel
+        $posts = $postModel
             ->select('Post.*, User.Username')
             ->join('User', 'User.UserID = Post.UserID', 'left')
             ->findAll();
-        // Render the index view
-        return view('users/index', ['users' => $users, 'posts' => $post]);
+
+        return view('users/index', [
+            'users' => $users,
+            'posts' => $posts
+        ]);
     }
 
-    // GET /users/create
+    // ======================
+    // CREATE USER
+    // ======================
     public function create()
     {
         return view('users/create');
     }
 
-    // POST /users/store
     public function store()
     {
-        $model = new UserModel();
         helper('form');
+        $model = new UserModel();
 
-
+        // Base user data
         $data = [
             'Username' => $this->request->getPost('Username'),
-            'Email' => $this->request->getPost('Email'),
-            'Password' => password_hash($this->request->getPost('Password'), PASSWORD_BCRYPT),
-            'Bio' => $this->request->getPost('Bio'),
-            'ProfilePicture' => $this->request->getPost('ProfilePicture'),
+            'Email'    => $this->request->getPost('Email'),
+            'Password' => password_hash(
+                $this->request->getPost('Password'),
+                PASSWORD_BCRYPT
+            ),
+            'Bio'      => $this->request->getPost('Bio'),
         ];
+
+        // ===== PROFILE PICTURE UPLOAD =====
+        $file = $this->request->getFile('ProfilePicture');
+
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $newName = $file->getRandomName();
+            $file->move('uploads', $newName);
+            $data['ProfilePicture'] = $newName;
+        } else {
+            // Optional: default avatar
+            $data['ProfilePicture'] = null;
+        }
 
         $model->insert($data);
 
-        return redirect()->to('/users')->with('message', 'User created successfully!');
+        return redirect()->to('/users')
+            ->with('message', 'User created successfully!');
     }
 
-    // GET /users/edit/{id}
+
+    // ======================
+    // EDIT USER
+    // ======================
     public function edit($id)
     {
         $model = new UserModel();
@@ -58,19 +84,18 @@ class UserController extends BaseController
         }
 
         if ($user['UserID'] != session()->get('UserID')) {
-            return redirect()->to('/users')->with('error', 'You are not allowed to edit this user.');
+            return redirect()->to('/users')
+                ->with('error', 'Tidak boleh edit user lain.');
         }
 
         return view('users/edit', ['user' => $user]);
     }
 
-    // POST /users/update/{id}
     public function update($id)
     {
+        helper('form');
         $model = new UserModel();
         $user = $model->find($id);
-        helper('form');
-
 
         if (!$user) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException("User not found");
@@ -78,46 +103,152 @@ class UserController extends BaseController
 
         $data = [
             'Username' => $this->request->getPost('Username'),
-            'Email' => $this->request->getPost('Email'),
-            'Bio' => $this->request->getPost('Bio'),
-            'ProfilePicture' => $this->request->getPost('ProfilePicture'),
+            'Email'    => $this->request->getPost('Email'),
+            'Bio'      => $this->request->getPost('Bio'),
         ];
 
+        // Password (optional)
         if ($this->request->getPost('Password')) {
-            $data['Password'] = password_hash($this->request->getPost('Password'), PASSWORD_BCRYPT);
+            $data['Password'] = password_hash(
+                $this->request->getPost('Password'),
+                PASSWORD_BCRYPT
+            );
+        }
+
+        // ===== PROFILE PICTURE UPLOAD =====
+        $file = $this->request->getFile('ProfilePicture');
+
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $newName = $file->getRandomName();
+            $file->move('uploads', $newName);
+
+            // Remove old image
+            if (!empty($user['ProfilePicture']) &&
+                file_exists('uploads/' . $user['ProfilePicture'])) {
+                unlink('uploads/' . $user['ProfilePicture']);
+            }
+
+            $data['ProfilePicture'] = $newName;
         }
 
         $model->update($id, $data);
 
-        return redirect()->to(site_url('users/profile/' . session()->get('UserID')))->with('message', 'User updated successfully!');
+        return redirect()->to(
+            site_url('users/profile/' . session()->get('UserID'))
+        )->with('message', 'User updated successfully!');
     }
 
-    // GET /users/delete/{id}
+
+    // ======================
+    // DELETE USER
+    // ======================
     public function delete($id)
     {
         $model = new UserModel();
         $model->delete($id);
 
-        return redirect()->to('/users')->with('message', 'User deleted successfully!');
+        return redirect()->to('/users')
+            ->with('message', 'User deleted successfully!');
     }
 
-    // GET /users/profile/{id}
-    public function profile($id)
+    // ======================
+    // PROFILE USER
+    // ======================
+    public function profile($id = null)
     {
         $userModel = new UserModel();
         $postModel = new PostModel();
-        $userID = $this->request->getGet('user');
-        $user = $userModel->find($id);
-        if (!$user) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("User not found");
+        $likeModel = new LikeModel();
+
+        $currentUserID = session()->get('UserID');
+        $targetID = $id ?? $currentUserID;
+
+        if (!$targetID) {
+            return redirect()->to('/login');
         }
 
-        $posts = $postModel->where('UserID', $id)->findAll();
+        // ===== USER =====
+        $user = $userModel->find($targetID);
+        if (!$user) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException("User tidak ditemukan");
+        }
+
+        // ===== USER POSTS =====
+        $posts = $postModel
+            ->select('Post.*')
+            ->where('Post.UserID', $targetID)
+            ->orderBy('PublicationDate', 'DESC')
+            ->findAll();
+
+        foreach ($posts as &$post) {
+            $post['total_likes'] = $likeModel
+                ->where('PostID', $post['PostID'])
+                ->countAllResults();
+
+            $post['is_liked'] = $currentUserID
+                ? (bool) $likeModel->where([
+                    'PostID' => $post['PostID'],
+                    'UserID' => $currentUserID
+                ])->first()
+                : false;
+        }
+        unset($post); // important
+
+        // ===== LIKED POSTS =====
+        $likedPosts = $likeModel
+            ->select('
+                Post.PostID,
+                Post.Title,
+                Post.Content,
+                Post.Tags,
+                Post.PublicationDate,
+                User.Username,
+                User.ProfilePicture
+            ')
+            ->join('Post', 'Post.PostID = likes.PostID')
+            ->join('User', 'User.UserID = Post.UserID')
+            ->where('likes.UserID', $targetID)
+            ->orderBy('likes.id', 'DESC')
+            ->findAll();
 
         return view('users/profile', [
-            'user' => $user,
+            'user'       => $user,
+            'posts'      => $posts,
+            'likedPosts' => $likedPosts
+        ]);
+    }
+
+
+    // ======================
+    // POST YANG DISUKAI USER
+    // ======================
+    public function likedPosts($id = null)
+    {
+        $postModel = new PostModel();
+        $likeModel = new LikeModel();
+
+        $targetID = $id ?? session()->get('UserID');
+        if (!$targetID) {
+            return redirect()->to('/login');
+        }
+
+        $posts = $postModel
+            ->select('Post.*, User.Username')
+            ->join('likes', 'likes.PostID = Post.PostID')
+            ->join('User', 'User.UserID = Post.UserID')
+            ->where('likes.UserID', $targetID)
+            ->findAll();
+
+        foreach ($posts as &$p) {
+            $p['total_likes'] = $likeModel
+                ->where('PostID', $p['PostID'])
+                ->countAllResults();
+            $p['is_liked'] = true;
+        }
+
+        return view('users/liked_posts', [
             'posts' => $posts,
-            'userID' => $userID
+            'title' => 'Post yang Disukai'
         ]);
     }
 }
