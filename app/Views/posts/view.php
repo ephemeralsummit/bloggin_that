@@ -82,7 +82,7 @@
                     <?= session()->get('UserID') ? '' : 'disabled' ?>
                 >
                     <span id="likeIcon"><?= $post['is_liked'] ? '❤️' : '🤍' ?></span>
-                    <span id="likeText"><?= $post['is_liked'] ? 'Liked' : 'Like' ?></span>
+                    <span id="likeText"><?= $post['is_liked'] ? 'liked' : 'like' ?></span>
                 </button>
 
                 <a
