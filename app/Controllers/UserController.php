@@ -22,9 +22,13 @@ class UserController extends BaseController
             ->join('User', 'User.UserID = Post.UserID', 'left')
             ->findAll();
 
+        $currentUser = session()->get();
+        $isAdmin = isset($currentUser['Username']) && $currentUser['Username'] === 'admin';
+
         return view('users/index', [
             'users' => $users,
-            'posts' => $posts
+            'posts' => $posts,
+            'isAdmin' => $isAdmin
         ]);
     }
 
@@ -83,9 +87,14 @@ class UserController extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException("User not found");
         }
 
-        if ($user['UserID'] != session()->get('UserID')) {
+        // --- ADMIN OVERRIDE ---
+        $currentUserID = session()->get('UserID');
+        $currentUsername = session()->get('Username');
+        $isAdmin = ($currentUsername === 'admin');
+
+        if ($user['UserID'] != $currentUserID && !$isAdmin) {
             return redirect()->to('/users')
-                ->with('error', 'Tidak boleh edit user lain.');
+                ->with('error', 'You do not have permission to edit this user.');
         }
 
         return view('users/edit', ['user' => $user]);
@@ -101,41 +110,44 @@ class UserController extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException("User not found");
         }
 
+        // --- ADMIN OVERRIDE ---
+        $currentUserID = session()->get('UserID');
+        $currentUsername = session()->get('Username');
+        $isAdmin = ($currentUsername === 'admin');
+
+        if ($user['UserID'] != $currentUserID && !$isAdmin) {
+            return redirect()->to('/users')
+                ->with('error', 'Unauthorized update attempt.');
+        }
+
         $data = [
             'Username' => $this->request->getPost('Username'),
             'Email'    => $this->request->getPost('Email'),
             'Bio'      => $this->request->getPost('Bio'),
         ];
 
-        // Password (optional)
         if ($this->request->getPost('Password')) {
-            $data['Password'] = password_hash(
-                $this->request->getPost('Password'),
-                PASSWORD_BCRYPT
-            );
+            $data['Password'] = password_hash($this->request->getPost('Password'), PASSWORD_BCRYPT);
         }
 
-        // ===== PROFILE PICTURE UPLOAD =====
         $file = $this->request->getFile('ProfilePicture');
-
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $newName = $file->getRandomName();
             $file->move('uploads', $newName);
-
-            // Remove old image
-            if (!empty($user['ProfilePicture']) &&
-                file_exists('uploads/' . $user['ProfilePicture'])) {
+            if (!empty($user['ProfilePicture']) && file_exists('uploads/' . $user['ProfilePicture'])) {
                 unlink('uploads/' . $user['ProfilePicture']);
             }
-
             $data['ProfilePicture'] = $newName;
         }
 
         $model->update($id, $data);
 
-        return redirect()->to(
-            site_url('users/profile/' . session()->get('UserID'))
-        )->with('message', 'User updated successfully!');
+        // If admin is editing someone else, redirect back to the user list
+        $redirectUrl = $isAdmin && ($user['UserID'] != $currentUserID) 
+                    ? site_url('users') 
+                    : site_url('users/profile/' . $id);
+
+        return redirect()->to($redirectUrl)->with('message', 'User updated successfully!');
     }
 
 
@@ -145,12 +157,18 @@ class UserController extends BaseController
     public function delete($id)
     {
         $model = new UserModel();
+        
+        // --- ADMIN OVERRIDE ---
+        $currentUsername = session()->get('Username');
+        if ($currentUsername !== 'admin') {
+            return redirect()->to('/users')->with('error', 'Only admins can delete users.');
+        }
+
         $model->delete($id);
 
         return redirect()->to('/users')
             ->with('message', 'User deleted successfully!');
     }
-
     // ======================
     // PROFILE USER
     // ======================
@@ -202,6 +220,7 @@ class UserController extends BaseController
                 Post.Content,
                 Post.Tags,
                 Post.PublicationDate,
+                Post.Image,
                 User.Username,
                 User.ProfilePicture
             ')

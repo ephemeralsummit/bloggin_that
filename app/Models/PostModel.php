@@ -18,14 +18,14 @@ class PostModel extends Model
         'UserID',
     ];
 
-    protected $useTimestamps = false; // We're using TIMESTAMP manually
+    protected $useTimestamps = false;
     protected $returnType = 'array';
 
     // Example: fetch posts with user info (join with User table)
     public function getPostsWithUsers()
     {
         return $this->select('Post.*, User.Username, User.Email, User.ProfilePicture')
-                    ->join('User', 'User.UserID = Post.UserID', 'left') // Assuming Post table has UserID FK
+                    ->join('User', 'User.UserID = Post.UserID', 'left') 
                     ->findAll();
     }
 

@@ -28,9 +28,10 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     // like
     $routes->post('like/toggle/(:num)', 'LikeController::toggle/$1');
     $routes->get('likes/(:num)', 'LikeController::list/$1');
+    $routes->get('posts/search', 'SearchController::index');
+    $routes->get('posts/search/fetch', 'SearchController::fetch');
 
-
-    $routes->get('users', 'UserController::index');
+    $routes->get('users', 'UserController::index', ['filter' => 'admin']);
     $routes->get('users/create', 'UserController::create');
     $routes->post('users', 'UserController::store');
     $routes->put('users/(:num)', 'UserController::update/$1');

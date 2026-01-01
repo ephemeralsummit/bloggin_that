@@ -9,28 +9,30 @@
 </div>
 
 <div class="w-100 px-4 border-bottom border-secondary">
-    <div class="d-flex mx-auto justify-content-center align-items-center pt-4">
+    <div class="d-flex justify-content-center align-items-center pt-4 gap-3">
         <?php
-            $pic = $user['ProfilePicture'] ?? null;
-            $src = 'https://via.placeholder.com/150';
+        $pic = $user['ProfilePicture'] ?? null;
 
-            if (!empty($pic)) {
-                $src = filter_var($pic, FILTER_VALIDATE_URL)
-                    ? $pic
-                    : base_url('uploads/' . $pic);
-            }
+        if (!empty($pic)) {
+            $profileImg = filter_var($pic, FILTER_VALIDATE_URL)
+                ? $pic
+                : base_url('uploads/'.$pic);
+        } else {
+            $profileImg = base_url('assets/default-avatar.png');
+        }
         ?>
         <div class="ms-3 me-3">
-            <img src="<?= esc($src) ?>"
+            <img src="<?= esc($profileImg) ?>"
                 class="img-fluid rounded mb-3"
-                style="width:150px;height:150px;object-fit:cover;">
+                style="min-width:150px;height:150px;object-fit:cover;">
         </div>
         <div class="text-start mb-3 me-5">
             <h3><?= esc($user['Username']) ?></h3>
             <p class="text-muted"><?= esc($user['Email']) ?></p>
-            <p><?= esc($user['Bio']) ?></p>
+            
         </div>
     </div>
+    <p class="px-5 text-center"><?= esc($user['Bio']) ?></p>
 
     <?php if (session()->has('UserID') && session()->get('UserID') == $user['UserID']): ?>
     <div class="d-flex justify-content-center align-items-center pb-3 gap-2">
@@ -41,6 +43,12 @@
         <a href="<?= site_url('logout') ?>"
            class="btn btn-outline-danger"
            style="width:17vh">logout</a>
+
+        <?php if (session()->get('Username') === 'admin'): ?>
+        <a href="<?= site_url('users') ?>"
+            class="btn btn-outline-dark"
+            style="width:17vh">admin panel</a>
+        <?php endif; ?>
     </div>
     <?php endif; ?>
 </div>
@@ -54,7 +62,6 @@
             role="tablist"
             style="height:6vh;"
         >
-            <!-- POSTS -->
             <li class="nav-item w-50 h-100">
                 <button
                     class="nav-link w-100 h-100 rounded-0 fw-semibold text-dark border-0 tab-btn active"
@@ -69,7 +76,6 @@
                 </button>
             </li>
 
-            <!-- LIKED -->
             <li class="nav-item w-50 h-100">
                 <button
                     class="nav-link w-100 h-100 rounded-0 fw-semibold text-dark border-0 tab-btn"
@@ -90,26 +96,58 @@
 
     <!-- TAB CONTENT -->
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="posts" role="tabpanel">
+        <div class="tab-pane fade show active pb-5" id="posts" role="tabpanel">
         <?php if (!empty($posts)): ?>
             <?php foreach ($posts as $post): ?>
                 <div class="my-3 pb-3 pt-3 border-bottom border-secondary" style="cursor:pointer;">
-                    <div class="border-left border-secondary">
-                        <div class="card-body text-left"
-                            onclick="location.href='<?= site_url('posts/view/'.$post['PostID']) ?>';"
-                            style="margin-left:40px;margin-right:40px">
-                            <h5><?= esc($post['Title']) ?></h5>
-                            <p><?= character_limiter(esc($post['Content']), 150) ?></p>
-                            <p>
-                                <small>
-                                    by <?= esc($user['Username']) ?>
-                                    <?php if (!empty(trim($post['Tags'] ?? ''))): ?>
-                                        — <?= implode(' ', array_map(
-                                            fn($tag) => '#'.esc($tag),
-                                            array_filter(array_map('trim', explode(',', $post['Tags'])))
-                                        )) ?>
-                                    <?php endif; ?>
-                                </small>
+                    <div class="card-body text-left" onclick="location.href='<?= site_url('posts/view/'.$post['PostID']) ?>';" style="margin-left:40px;margin-right:40px">
+                        <h4 class="mb-1">
+                            <a>
+                                <?= esc($post['Title']) ?>
+                            </a>
+                        </h4>
+                        <p style="white-space: pre-wrap;"><?= character_limiter(esc($post['Content']), 100) ?></p>
+
+                        <?php if (!empty($post['Image'])): ?>
+                            <div class="mb-3">
+                                <img
+                                    src="<?= base_url('uploads/' . $post['Image']) ?>"
+                                    alt="<?= esc($post['Title']) ?>"
+                                    class="img-fluid rounded shadow-sm"
+                                    style="max-width: 100%; height: 20vh;"
+                                >
+                            </div>
+                        <?php endif; ?>
+                        <p class="mb-0">
+                            <small class="text-muted">
+                            <?php if (!empty(trim($post['Tags'] ?? ''))): ?>
+                                <?= implode(' ', array_map(
+                                    fn($tag) => '#'.esc($tag),
+                                    array_filter(array_map('trim', explode(',', $post['Tags'])))
+                                )) ?> —
+                            <?php endif; ?>
+                            <?= esc($post['PublicationDate']) ?></small>
+                            </small>
+                        </p>
+                        <?php
+                        $pic = $user['ProfilePicture'] ?? null;
+
+                        if (!empty($pic)) {
+                            $profileImg = filter_var($pic, FILTER_VALIDATE_URL)
+                                ? $pic
+                                : base_url('uploads/'.$pic);
+                        } else {
+                            $profileImg = base_url('assets/default-avatar.png');
+                        }
+                        ?>
+                        <div class="pt-2 d-flex align-items-center gap-3">
+                            <img
+                                src="<?= esc($profileImg) ?>"
+                                alt="<?= esc($user['Username']) ?>"
+                                class="img-fluid rounded"
+                                style="width:48px;height:48px;object-fit:cover;"
+                            >
+                            <p class="p-0 fw-semibold mt-auto"><?= esc($user['Username']) ?> 
                             </p>
                         </div>
                     </div>
@@ -120,26 +158,56 @@
         <?php endif; ?>
         </div>
 
-        <div class="tab-pane fade" id="likes" role="tabpanel">
+        <div class="tab-pane fade pb-5" id="likes" role="tabpanel">
         <?php if (!empty($likedPosts)): ?>
             <?php foreach ($likedPosts as $post): ?>
                 <div class="my-3 pb-3 pt-3 border-bottom border-secondary" style="cursor:pointer;">
-                    <div class="border-left border-secondary">
-                        <div class="card-body text-left"
-                            onclick="location.href='<?= site_url('posts/view/'.$post['PostID']) ?>';"
-                            style="margin-left:40px;margin-right:40px">
-                            <h5><?= esc($post['Title']) ?></h5>
-                            <p><?= character_limiter(esc($post['Content']), 150) ?></p>
-                            <p>
-                                <small>
-                                    by <?= esc($post['Username']) ?>
-                                    <?php if (!empty(trim($post['Tags'] ?? ''))): ?>
-                                        — <?= implode(' ', array_map(
-                                            fn($tag) => '#'.esc($tag),
-                                            array_filter(array_map('trim', explode(',', $post['Tags'])))
-                                        )) ?>
-                                    <?php endif; ?>
-                                </small>
+                    <div class="card-body text-left" onclick="location.href='<?= site_url('posts/view/'.$post['PostID']) ?>';" style="margin-left:40px;margin-right:40px">
+                        <h4 class="mb-1">
+                            <a>
+                                <?= esc($post['Title']) ?>
+                            </a>
+                        </h4>
+                        <p style="white-space: pre-wrap;"><?= character_limiter(esc($post['Content']), 100) ?></p>
+
+                        <?php if (!empty($post['Image'])): ?>
+                            <div class="mb-3">
+                                <img
+                                    src="<?= base_url('uploads/' . $post['Image']) ?>"
+                                    alt="<?= esc($post['Title']) ?>"
+                                    class="img-fluid rounded shadow-sm"
+                                    style="max-width: 100%; height: 20vh;"
+                                >
+                            </div>
+                        <?php endif; ?>
+                        <p class="mb-0">
+                            <small class="text-muted">
+                            <?php if (!empty(trim($post['Tags'] ?? ''))): ?>
+                                <?= implode(' ', array_map(
+                                    fn($tag) => '#'.esc($tag),
+                                    array_filter(array_map('trim', explode(',', $post['Tags'])))
+                                )) ?> —
+                            <?php endif; ?>
+                            <?= esc($post['PublicationDate']) ?></small>
+                            </small>
+                        </p>
+                        <?php
+                        if (!empty($post['ProfilePicture'])) {
+                            $profileImg = filter_var($post['ProfilePicture'], FILTER_VALIDATE_URL)
+                                ? $post['ProfilePicture']
+                                : base_url('uploads/'.$post['ProfilePicture']);
+                        } else {
+                            $profileImg = base_url('assets/default-avatar.png');
+                        }
+                        ?>
+                        <div class="pt-2 d-flex align-items-center gap-3">
+                            <img
+                                src="<?= esc($profileImg) ?>"
+                                alt="<?= esc($user['Username']) ?>"
+                                class="img-fluid rounded"
+                                style="width:48px;height:48px;object-fit:cover;"
+                            >
+                            <p class="p-0 fw-semibold mt-auto"><?= esc($post['Username']) ?> 
                             </p>
                         </div>
                     </div>
@@ -150,7 +218,7 @@
         <?php endif; ?>
 
         </div>
-    </div> <!-- end tab-content -->
+    </div>
 </div>
 
 <?= $this->endSection() ?>

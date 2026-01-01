@@ -52,7 +52,6 @@
 
         <!-- ACTION ROW -->
         <div class="mb-2 row g-1 align-items-center">
-            <!-- Add image -->
             <div class="col-12 col-md-6 order-1">
                 <input type="file"
                        id="imageInput"
@@ -67,7 +66,6 @@
                 </label>
             </div>
 
-            <!-- Update -->
             <div class="col-12 col-md-3 order-3 order-md-2">
                 <button type="submit"
                         class="btn btn-outline-primary w-100">
@@ -75,9 +73,8 @@
                 </button>
             </div>
 
-            <!-- Cancel -->
             <div class="col-12 col-md-3 order-2 order-md-3">
-                <a href="<?= site_url('users/profile/' . session()->get('UserID')) ?>"
+                <a href="<?= site_url('users/profile/' . $user['UserID']) ?>"
                    class="btn btn-outline-dark w-100">
                     cancel
                 </a>
@@ -85,17 +82,26 @@
         </div>
     </form>
 
-    <!-- IMAGE PREVIEW -->
-    <div class="mt-4">
-        <h5 id="imagePreviewTitle"
-            class="<?= empty($user['ProfilePicture']) ? 'd-none' : '' ?>">
+    <?php
+    // Consistent logic for URLs vs Files
+    if (!empty($user['ProfilePicture'])) {
+        $profileImg = filter_var($user['ProfilePicture'], FILTER_VALIDATE_URL)
+            ? $user['ProfilePicture']
+            : base_url('uploads/' . $user['ProfilePicture']);
+    } else {
+        $profileImg = base_url('assets/default-avatar.png');
+    }
+    ?>
+
+    <div class="mt-4 pb-5 text-center">
+        <h5 id="imagePreviewTitle" class="mb-3">
             profile picture preview
         </h5>
 
         <img id="imagePreview"
-             src="<?= !empty($user['ProfilePicture']) ? base_url('uploads/' . $user['ProfilePicture']) : '' ?>"
-             class="img-fluid rounded shadow <?= empty($user['ProfilePicture']) ? 'd-none' : '' ?>"
-             style="max-height: 300px;">
+             src="<?= esc($profileImg) ?>"
+             class="img-fluid rounded shadow"
+             style="max-height: 300px; width: 300px; object-fit: cover;">
     </div>
 </div>
 
@@ -103,10 +109,12 @@
 function previewImage(event) {
     const img = document.getElementById('imagePreview');
     const title = document.getElementById('imagePreviewTitle');
-
-    img.src = URL.createObjectURL(event.target.files[0]);
-    img.classList.remove('d-none');
-    title.classList.remove('d-none');
+    
+    if (event.target.files && event.target.files[0]) {
+        img.src = URL.createObjectURL(event.target.files[0]);
+        img.classList.remove('d-none');
+        title.classList.remove('d-none');
+    }
 }
 </script>
 

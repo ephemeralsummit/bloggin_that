@@ -9,12 +9,10 @@
 </div>
 
 <div class="py-4 px-5">
-    <div class="card-body">
+    <div class="">
         <h2><?= esc($post['Title']) ?></h2>
         
-        <div class="mt-1 mb-3">
-            <?= esc($post['Content']) ?>
-        </div>
+        <p style="white-space: pre-wrap;"><?= ($post['Content']) ?></p>
 
         <?php if (!empty($post['Image'])): ?>
             <div class="mb-3">
@@ -28,7 +26,14 @@
         <?php endif; ?>
 
 
-        <p class="mb-0"><small class="text-muted"><?= implode(' ', array_map(fn($tag) => '#'.trim(esc($tag)), explode(',', $post['Tags']))) ?> — <?= esc($post['PublicationDate']) ?></small></p>
+        <p class="mb-0"><small class="text-muted">
+            <?php if (!empty(trim($post['Tags'] ?? ''))): ?>
+                <?= implode(' ', array_map(
+                    fn($tag) => '#'.esc($tag),
+                    array_filter(array_map('trim', explode(',', $post['Tags'])))
+                )) ?> —
+            <?php endif; ?>
+            <?= esc($post['PublicationDate']) ?></small></p>
     </div>
 </div>
 <div class="pt-1 pb-3 px-5 border-bottom border-secondary">

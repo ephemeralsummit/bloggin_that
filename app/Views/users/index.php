@@ -1,7 +1,14 @@
 <?= $this->extend('layout') ?>
 <?= $this->section('content') ?>
 
-<div class="container px-3 pb-4">
+<div class="py-3 px-5 border-bottom border-secondary">
+    <a href="javascript:history.back()" class="ml-2 nav-link"> 
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        <span class="pl-2 h5">back</span>
+    </a>
+</div>
+
+<div class="container px-5 pb-5 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-3 pt-3">
         <h2>All Users</h2>
         <a href="<?= site_url('users/create') ?>" class="btn btn-primary">Add User</a>

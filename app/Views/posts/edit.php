@@ -36,7 +36,6 @@
 
         <!-- ACTION ROW -->
         <div class="mb-2 row g-1 align-items-center">
-            <!-- Tags -->
             <div class="col-12 col-md-6 order-1">
                 <input type="text"
                        name="Tags"
@@ -44,16 +43,12 @@
                        value="<?= esc($post['Tags']) ?>"
                        placeholder="tags...">
             </div>
-
-            <!-- Update (full width on mobile) -->
             <div class="col-12 col-md-2 order-3 order-md-4">
                 <button type="submit"
                         class="btn btn-outline-primary w-100">
                     update
                 </button>
             </div>
-
-            <!-- Delete + Add image -->
             <div class="col-12 col-md-4 order-2 order-md-2">
                 <div class="row g-1">
                     <div class="col-5">
@@ -82,8 +77,7 @@
         </div>
     </form>
 
-    <!-- IMAGE PREVIEW -->
-    <div class="mt-4">
+    <div class="mt-4 pb-5 text-center">
         <h5 id="imagePreviewTitle"
             class="<?= empty($post['Image']) ? 'd-none' : '' ?>">
             image preview
