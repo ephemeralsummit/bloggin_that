@@ -7,7 +7,7 @@
 
 <?php if (!empty($posts)): ?>
     <?php foreach ($posts as $post): ?>
-        <div class="my-4 pb-3 border-bottom border-secondary">
+        <div class="my-4 pb-3 border-bottom border-secondary" style="cursor:pointer;">
             <div class="border-left border-secondary">
                 <div class="card-body text-left" onclick="location.href='<?= site_url('posts/view/'.$post['PostID']) ?>';" style="margin-left:40px;margin-right:40px">
                     <h5>

@@ -13,7 +13,7 @@ class LikeModel extends Model
     protected $primaryKey = 'id';
 
     // Kolom yang diizinkan untuk diisi (Mass Assignment)
-    protected $allowedFields = ['user_id', 'PostID'];
+    protected $allowedFields = ['UserID', 'PostID'];
 
     // Mengaktifkan fitur otomatis pengisian waktu (created_at)
     protected $useTimestamps = true;
@@ -26,7 +26,7 @@ class LikeModel extends Model
     public function checkLike($userId, $postId)
     {
         return $this->where([
-            'user_id' => $userId,
+            'UserID' => $userId,
             'PostID' => $postId
         ])->first();
     }

@@ -50,4 +50,21 @@ class LikeController extends BaseController
             'total_likes' => $totalLikes
         ]);
     }
+    
+    public function list($postId)
+    {
+        $likeModel = new LikeModel();
+
+        $likes = $likeModel
+            ->select('User.UserID, User.Username, User.ProfilePicture, User.Bio')
+            ->join('User', 'User.UserID = likes.UserID')
+            ->where('PostID', $postId)
+            ->findAll();
+
+        return view('likes/list', [
+            'likes'  => $likes,
+            'postId' => $postId
+        ]);
+    }
+
 }

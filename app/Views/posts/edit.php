@@ -2,14 +2,14 @@
 <?= $this->section('content') ?>
 
 <div class="py-3 px-5 border-bottom border-secondary">
-    <a href="<?= site_url('posts') ?>" class="ml-2 nav-link"> 
+    <a href="javascript:history.back()" class="ml-2 nav-link"> 
         <i class="fa fa-chevron-left" aria-hidden="true"></i>
         <span class="pl-2 h5">back</span>
     </a>
 </div>
 
-<div class="w-100 px-4 pt-4">
-    <h2 class="pb-2">Edit Post</h2>
+<div class="w-100 px-5 pt-4">
+    <h2 class="pb-2">edit post</h2>
 
     <form action="<?= site_url('posts/update/' . $post['PostID']) ?>"
           method="post"
@@ -46,25 +46,25 @@
             </div>
 
             <!-- Update (full width on mobile) -->
-            <div class="col-12 col-md-2 order-2 order-md-4">
+            <div class="col-12 col-md-2 order-3 order-md-4">
                 <button type="submit"
                         class="btn btn-outline-primary w-100">
-                    Update
+                    update
                 </button>
             </div>
 
             <!-- Delete + Add image -->
-            <div class="col-12 col-md-4 order-3 order-md-2">
+            <div class="col-12 col-md-4 order-2 order-md-2">
                 <div class="row g-1">
-                    <div class="col-6">
+                    <div class="col-5">
                         <a href="<?= site_url('posts/delete/'.$post['PostID']) ?>"
                            onclick="return confirm('Are you sure you want to delete this post?')"
                            class="btn btn-outline-danger w-100">
-                            Delete
+                            delete
                         </a>
                     </div>
 
-                    <div class="col-6">
+                    <div class="col-7">
                         <input type="file"
                                id="imageInput"
                                name="image"
@@ -74,7 +74,7 @@
 
                         <label for="imageInput"
                                class="btn btn-outline-dark w-100">
-                            Add image
+                            add image
                         </label>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
     <div class="mt-4">
         <h5 id="imagePreviewTitle"
             class="<?= empty($post['Image']) ? 'd-none' : '' ?>">
-            Image Preview
+            image preview
         </h5>
 
         <img id="imagePreview"

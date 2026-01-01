@@ -199,32 +199,39 @@ class PostController extends BaseController
     {
         $postModel = new PostModel();
         $likeModel = new LikeModel();
+
         $currentUserID = session()->get('UserID');
 
+        // Get post + author
         $post = $postModel
-            ->select('Post.*, User.Username')
+            ->select('Post.*, User.Username, User.ProfilePicture')
             ->join('User', 'User.UserID = Post.UserID', 'left')
             ->where('Post.PostID', $id)
             ->first();
 
         if (!$post) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Post not found");
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Post not found');
         }
 
+        // Total likes
         $post['total_likes'] = $likeModel
             ->where('PostID', $id)
             ->countAllResults();
 
+        // Is liked by current user
         $post['is_liked'] = false;
         if ($currentUserID) {
-            $post['is_liked'] = $likeModel->where([
+            $post['is_liked'] = (bool) $likeModel->where([
                 'PostID' => $id,
                 'UserID' => $currentUserID
-            ])->first() ? true : false;
+            ])->first();
         }
 
-        return view('posts/view', ['post' => $post]);
+        return view('posts/view', [
+            'post' => $post
+        ]);
     }
+
 
 
     // =========================

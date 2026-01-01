@@ -11,7 +11,49 @@
             --content-width: 720px;
             --sidebar-width: 300px;
         }
-        
+        button[data-bs-toggle="tab"].active {
+            background-color: #212529;
+            color: #fff;
+            border-color: #212529;
+        }
+
+        /* Base tab style */
+        #profileTabs .nav-link {
+            background: transparent;
+            color: #212529;
+        }
+
+        /* Underline indicator */
+        #profileTabs .tab-btn {
+            position: relative;
+        }
+
+        #profileTabs .tab-btn::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: transparent;
+            transition: background-color 0.2s ease;
+        }
+
+        #profileTabs .tab-btn.active::after {
+            background: #212529;
+        }
+
+        /* Vertical divider in the center */
+        #profileTabs::after {
+            content: "";
+            position: absolute;
+            top: 15%;
+            bottom: 15%;
+            left: 50%;
+            width: 1px;
+            background: #6c757d;
+        }
+
         .nav .nav-item a.nav-link.active {
             color: #fff !important;
         }
@@ -203,4 +245,5 @@
     </div>
         
 </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </html>

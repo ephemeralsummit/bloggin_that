@@ -27,6 +27,8 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get('posts/liked', 'PostController::likedPosts');
     // like
     $routes->post('like/toggle/(:num)', 'LikeController::toggle/$1');
+    $routes->get('likes/(:num)', 'LikeController::list/$1');
+
 
     $routes->get('users', 'UserController::index');
     $routes->get('users/create', 'UserController::create');
