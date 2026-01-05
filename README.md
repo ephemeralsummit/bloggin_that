@@ -5,7 +5,7 @@ A **simple blog web application** built using **CodeIgniter 4**.
 This project demonstrates basic web application development concepts using PHP and the MVC architecture. The application allows users to create, view, edit, and delete blog posts.
 
 Repository:  
-https://github.com/ephemeralsummit/webAppBlog_midterms
+https://github.com/ephemeralsummit/bloggin_that
 
 ---
 
